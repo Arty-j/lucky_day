@@ -117,7 +117,7 @@ style = col3.slider(
     key="excitement",
 )
 
-expander = form.expander("Customize Your Contract")
+expander = form.expander("Customize Your Transaction")
 if type == "Vehicle":
     #run a function in different py file? to gather form details?
     col1style, col2style, col3style = expander.columns([2, 2, 1])
