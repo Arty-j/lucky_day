@@ -36,6 +36,7 @@ class Block:
     buyer: int
     seller: int
     value: int
+    gas: int
     prev_hash: str = "0"
     timestamp: str = datetime.datetime.utcnow().strftime("%H:%M:%S")
 
@@ -79,7 +80,7 @@ class PyChain:
 @st.cache(allow_output_mutation=True)
 def setup():
     print("Initializing Chain")
-    return PyChain([Block(data="Genesis", seller=0, buyer=0, value=0)])
+    return PyChain([Block(data="Genesis", seller=0, buyer=0, value=0,gas=0)])
 
 
 pychain = setup()
@@ -207,6 +208,11 @@ if type == "Vehicle":
         key="veh_title",
     )
 
+    gas = col3style.text_input(
+        "Gas",
+        help="Price offering for gas",
+        key="gas",
+    )
     
     # Final Form submittal of data to create smart contract or simply place transaction on blockchain
     st.markdown("---")
@@ -219,7 +225,7 @@ form.form_submit_button(label="##Review")
             #     print(smart_contract)
             # else:
             #     input_data = [veh_make, veh_model, veh_color, veh_vin, veh_title, veh_pmtCOIN, veh_price]
-input_data = [veh_make, veh_model, veh_color, veh_vin, veh_title, veh_pmtCOIN, veh_price]
+input_data = [veh_make, veh_model, veh_color, veh_vin, veh_title, veh_pmtCOIN, veh_price, gas]
 wei = w3.toWei(veh_price, "ether")
 st.write(f"The sale transaction of this vehicle, will be to {buyer_name} at {buyer_address} paying {seller_name} at {seller_address} {veh_price}, in {veh_pmtCOIN}, for the {veh_make} {veh_model}")
 # if style == 100:
@@ -239,7 +245,7 @@ if st.button("Complete Transaction and Add Block to Blockchain"):
     # Hash the previous block in the chain
     prev_block_hash = prev_block.hash_block()
     # Create a new block in the chain
-    new_block = Block(data=input_data, buyer=buyer_address, seller=seller_address, value=0, prev_hash=prev_block_hash)
+    new_block = Block(data=input_data, buyer=buyer_address, seller=seller_address, value=wei, gas=gas, prev_hash=prev_block_hash)
     # Add the new block to the chain
     pychain.add_block(new_block)
 
