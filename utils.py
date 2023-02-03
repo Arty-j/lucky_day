@@ -1,6 +1,10 @@
 import streamlit as st
-from web3 import Web3 as w3
-
+from bip44 import Wallet
+from eth_account import Account
+from web3 import middleware
+from web3.gas_strategies.time_based import medium_gas_price_strategy
+from web3 import Web3
+w3 = Web3(Web3.HTTPProvider('HTTP://127.0.0.1:7545'))
 
 
 @st.experimental_memo(show_spinner=False)
@@ -8,16 +12,57 @@ def getnums(s,e,i):
     """function to get list of numbers from 1980-2023 for selectbox veh_year"""
     return list(range(s,e,i))
 
-# def getvalue(COIN,price):
-#     """function to calculate price of vehicle sale in ethereum"""
-# ######use api to get current rate of eth to usd, convert usd sale price to wei###
-#     conversion_rate = 
-#     if COIN == 'USD':
-#         USD = price
-#         eth = COIN * conversion_rate
-#         wei = w3.toWei(eth, "ether")
-#     return USD, eth, wei
 
-# def compile_contract(data):
-#     return smart_contract
+################################################################################
 
+def get_price(w3,veh_pmtCOIN, veh_price):
+    """function to calculate price of vehicle sale in USD ethereum & wei"""
+######use api to get current rate of 1usd to eth, set = to conversion_rate ** currently using static rate for code #######
+
+#conversion rate is $1USD to ETH
+    conversion_rate = 0.0006030253783230467
+
+    if veh_pmtCOIN == 'USD':
+        veh_priceUSD = veh_price
+        veh_priceETH_float = float(veh_priceUSD) * conversion_rate
+        veh_priceETH = str(veh_priceETH_float)
+        veh_priceWEI = w3.toWei(veh_priceETH, "ether")
+    elif veh_pmtCOIN =='ETH':
+        veh_priceETH = veh_price
+        veh_priceWEI = w3.toWei(veh_priceETH, "ether")
+        veh_priceUSDfloat = float(veh_priceETH) / conversion_rate
+        veh_priceUSD = str(veh_priceUSDfloat)
+    
+    return veh_priceUSD, veh_priceETH, veh_priceWEI
+
+################################################################################
+
+def send_transaction(w3, account, buyer_address, veh_priceETH):
+    """Send an authorized transaction to the Ganache blockchain."""
+    # Set gas price strategy
+    w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
+
+    # Convert eth amount to Wei
+    value = w3.toWei(veh_priceETH, "ether")
+
+    # Calculate gas estimate
+    gasEstimate = w3.eth.estimateGas({"to": buyer_address, "from": account.address, "value": value})
+
+    # Construct a raw transaction
+    raw_tx = {
+        "to": buyer_address,
+        "from": account.address,
+        "value": value,
+        "gas": gasEstimate,
+        "gasPrice": 0,
+        "nonce": w3.eth.getTransactionCount(account.address)
+    }
+
+    # Sign the raw transaction with ethereum account
+    signed_tx = account.signTransaction(raw_tx)
+
+    # Send the signed transactions
+    return w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+################################################################################
+    

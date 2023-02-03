@@ -3,24 +3,21 @@
 
 ################################################################################
 # Imports
+import os
+from dotenv import load_dotenv
+load_dotenv()
 import streamlit as st
 # from streamlit_image_select import image_select
-# from utils import (
-#     st_get_osm_geometries,
-#     st_plot_all,
-#     get_colors_from_style,
-#     gdf_to_bytesio_geojson,
-# )
+from wallet import get_balance, generate_account
+from bip44 import Wallet
+from eth_account import Account
+from web3 import middleware
+from web3.gas_strategies.time_based import medium_gas_price_strategy
+from web3 import Web3
+w3 = Web3(Web3.HTTPProvider('HTTP://127.0.0.1:7545'))
+from utils import getnums, get_price, send_transaction
+from wallet import generate_account, get_balance
 
-import datetime as datetime
-from dataclasses import dataclass
-from typing import Any, List
-import pandas as pd
-import datetime as datetime
-import hashlib
-from utils import getnums
-#from utils import getvalue
-from web3 import Web3 as w3
 
 
 
@@ -28,62 +25,15 @@ from web3 import Web3 as w3
 
 ################################################################################
 # Step 1:
-# Creates the Block and PyChain data classes
-
-@dataclass
-class Block:
-    data: Any
-    buyer: int
-    seller: int
-    value: int
-    gas: int
-    prev_hash: str = "0"
-    timestamp: str = datetime.datetime.utcnow().strftime("%H:%M:%S")
-
-    def hash_block(self):
-        sha = hashlib.sha256()
-
-        data = str(self.data).encode()
-        sha.update(data)
-
-        buyer = str(self.buyer).encode()
-        sha.update(buyer)
-
-        seller = str(self.seller).encode()
-        sha.update(seller)
-
-        value = str(self.value).encode()
-        sha.update(value)
-
-        timestamp = str(self.timestamp).encode()
-        sha.update(timestamp)
-
-        prev_hash = str(self.prev_hash).encode()
-        sha.update(prev_hash)
-
-        return sha.hexdigest()
-
-
-# Create the data class PyChain
-@dataclass
-class PyChain:
-    chain: List[Block]
-
-    def add_block(self, block):
-        self.chain += [block]
+# Sets up dictionaries and datasets
 
 
 ################################################################################
 # Step 2:
 # Streamlit Code
-# Adds the cache decorator for Streamlit, Initializes the Blockchain
-@st.cache(allow_output_mutation=True)
-def setup():
-    print("Initializing Chain")
-    return PyChain([Block(data="Genesis", seller=0, buyer=0, value=0,gas=0)])
-
-
-pychain = setup()
+# Adds the cache decorator for Streamlit and page configuration
+# @st.cache(allow_output_mutation=True)
+st.set_page_config(page_title="luckyday", page_icon=None, initial_sidebar_state="collapsed")
 
 st.markdown("# Lucky Day")
 st.markdown("## Blockchain Smart Contract App")
@@ -93,17 +43,19 @@ st.markdown("**Conduct your transactions via a transparent, trustworthy decentra
 # Step 3:
 # Streamlit Main Page Form for data capture
 
+#sets up data collection form with 3 columns
 st.write("")
-form = st.form(key="form_settings")
+form = st.form(key="form_settings", clear_on_submit=False)
 col1, col2, col3 = form.columns([2, 2, 1])
 
-contract_options=["Vehicle", "NFT"]
+#1st column dropdown options
+contract_options=["Vehicle", "Motorcycle"]
 type = col1.selectbox(
     "Contract Type",
     options=contract_options,
     key="type",
 )
-
+#2nd column dropdown options
 level_options=["Smart Contract Enabled", "Simple Transaction Record"]
 level = col2.radio(
     "Transaction Level",
@@ -111,16 +63,20 @@ level = col2.radio(
     key="level",
 )
 
-style = col3.slider(
+#3rd column slider option
+excitement = col3.slider(
     "Excitement Level",
     0,
     100,
     key="excitement",
 )
 
+################################################################################
+# Step 3:
+# Form expander for Vehicle selection options
+
 expander = form.expander("Customize Your Transaction")
 if type == "Vehicle":
-    #run a function in different py file? to gather form details?
     col1style, col2style, col3style = expander.columns([2, 2, 1])
     #col 1 data input -Vehicle
     veh_make = col1style.text_input(
@@ -142,7 +98,7 @@ if type == "Vehicle":
 
     veh_vin = col1style.text_input(
         "Vehicle VIN",
-        max_chars=20,
+        max_chars=17,
         key="veh_vin",
     )
     
@@ -163,7 +119,7 @@ if type == "Vehicle":
 
     seller_address = col2style.text_input(
         "Seller Wallet Address",
-        max_chars=40,
+        max_chars=42,
         key="seller_address",
     )
     
@@ -177,7 +133,7 @@ if type == "Vehicle":
 
     buyer_address = col2style.text_input(
         "Buyer Wallet Address",
-        max_chars=40,
+        max_chars=42,
         key="buyer_address",
     )
 
@@ -192,12 +148,13 @@ if type == "Vehicle":
     )
     
     veh_price = col2style.text_input(
-        "Sale Transaction Price",
+        label=":red[Sale Transaction Price]",
         help="This is agreed sale price in the coin of choice listed above",
         key="veh_price",
     )
-    # USD, eth, wei = getvalue(veh_pmtCOIN,veh_price)
-    # st.write(f"Sale transaction price will be ${USD}USD or {eth}, transacted on the Ethereum network as {wei}wei")
+
+    veh_priceUSD, veh_priceETH, veh_priceWEI = get_price(w3, veh_pmtCOIN, veh_price)
+    
 
 
     #col 3 data input- price
@@ -214,51 +171,64 @@ if type == "Vehicle":
         key="gas",
     )
     
-    # Final Form submittal of data to create smart contract or simply place transaction on blockchain
     st.markdown("---")
-form.form_submit_button(label="##Review")
-    # if submitted:
-    #         st.write(f'The sale transaction of this vehicle, will be {buyer_name} at {buyer_address} paying {seller_name} at {seller_address} {veh_price}, in {veh_pmtCOIN}')
-            # if level == "Smart Contract Enabled":
-            #     with st.spinner("Creating your smart contract for final review...(may take a minute)"):
-            #     smart_contract = compile_contract(submitted)
-            #     print(smart_contract)
-            # else:
-            #     input_data = [veh_make, veh_model, veh_color, veh_vin, veh_title, veh_pmtCOIN, veh_price]
-input_data = [veh_make, veh_model, veh_color, veh_vin, veh_title, veh_pmtCOIN, veh_price, gas]
-wei = w3.toWei(veh_price, "ether")
-st.write(f"The sale transaction of this vehicle, will be to {buyer_name} at {buyer_address} paying {seller_name} at {seller_address} {veh_price}, in {veh_pmtCOIN}, for the {veh_make} {veh_model}")
-# if style == 100:
-#     st.balloons
+    # Final Form submittal of data to create smart contract or simply place transaction on blockchain
+   
+submit_button = form.form_submit_button(label="Review Transaction Details")
+if submit_button:
+    if type == "Vehicle" and level == "Smart Contract Enabled":
+        # with st.spinner("Creating your smart contract for final review...(may take a minute)"):
+        #         ########## * here is where we need to connect the smart contract for a vehicle *#######
+        #         smart_contract = compile_veh_contract(submitted)
+        None
+    else:
+        st.write("The sale transaction of this vehicle, will be:")
+        st.write(f'{buyer_name} at {buyer_address} paying')
+        st.write(f'{seller_name} at {seller_address}')
+        st.write(f'{veh_price}, in {veh_pmtCOIN} for a {veh_make}, {veh_model}')
+                 
+        st.write('The blockchain sale transaction will be in wei')
+        st.write('according to your choice of sale coin and price, which means')
+        st.write(f'${veh_priceUSD} USD = {veh_priceETH} ETH = {veh_priceWEI} wei')
+        st.write('If this sale record looks correct, use button below to complete')
+        st.write('the sales transaction and record to the Blockchain')
+                
+
 
 ################################################################################
-
+# Step 4: Generate Account (Wallet) on Ganache with default 100ETH
+# check wallet balance and write to sidebar if user has enough ether to buy the vehicle/moto.
+                 
+account = generate_account(w3)
+                 
+walletETH = get_balance(w3, account.address)
+                 
+if veh_priceETH <= walletETH:
+  new_balance = float(walletETH) - float(veh_priceETH)
+# Write the vehicle make and model to the sidebar
+  st.sidebar.write(f"If you buy this {veh_make} {veh_model} for, {veh_priceETH} ETH, your new account balance will be: {new_balance}.")
+else:
+  st.sidebar.write(f"With a balance of {walletETH} ether in your wallet, you can't buy this {veh_make} {veh_model} for, {veh_priceETH} ETH.")
 
 ################################################################################
 # Step 4:
-# Modify the Streamlit “Add Block” button code so that when someone clicks the
-# button, the code adds a new block to the blockchain.
+# Streamlit “Add Block” button code so that when someone clicks the
+# button, the transaction is added to the blockchain.
 
 if st.button("Complete Transaction and Add Block to Blockchain"):
-    # Select the previous block in the chain
-    prev_block = pychain.chain[-1]
-    # Hash the previous block in the chain
-    prev_block_hash = prev_block.hash_block()
-    # Create a new block in the chain
-    new_block = Block(data=input_data, buyer=buyer_address, seller=seller_address, value=wei, gas=gas, prev_hash=prev_block_hash)
-    # Add the new block to the chain
-    pychain.add_block(new_block)
-
-
-# Create a Pandas DataFrame to display the `PyChain` ledger
-pychain_df = pd.DataFrame(pychain.chain)
-
-# Use the Streamlit `write` function to display the `PyChain` DataFrame
-st.write(pychain_df)
-
+    transaction_complete = send_transaction(w3, account, buyer_address, veh_priceETH)
+    st.write("Your transaction on the Ganache Blockchain tester is complete!")
+    st.write("Here is the hash code confirming your transaction")
+    st.write(f"{transaction_complete}")
+    st.write("/n")
+    st.markdown("# Congratulations on selling your car!")
+    st.balloons
+                 
 ################################################################################
 
 st.markdown("---")
+st.markdown("# If you liked this app give us a :thumbs up: it keeps us creating more great tools for the future of Blockchain!")
+             
 st.write(
     "Share with your friends and make buying and selling your lucky day!"
 )
