@@ -16,21 +16,31 @@ def getnums(s,e,i):
 ################################################################################
 
 def get_price(w3,veh_pmtCOIN, veh_price):
-    """function to calculate price of vehicle sale in USD ethereum & wei"""
-######use api to get current rate of 1usd to eth, set = to conversion_rate ** currently using static rate for code #######
+    """function to calculate price of vehicle sale in USD, ethereum & wei"""
+######use api to get current rate of 1usd to eth, set = to conversion_rate ** currently using static rate for code testing#######
 
-#conversion rate is $1USD to ETH
+    #conversion rate is $1USD to ETH
     conversion_rate = 0.0006030253783230467
 
     if veh_pmtCOIN == 'USD':
         veh_priceUSD = veh_price
-        veh_priceETH_float = float(veh_priceUSD) * conversion_rate
+        
+        #change veh_priceUSD to a float to multipy times a float(conversion_rate)
+        veh_priceETH_float = float(veh_priceUSD) * float(conversion_rate)
+        
+        #calculation result veh_priceETH_float, changed back to a string to use in w3
         veh_priceETH = str(veh_priceETH_float)
+        
         veh_priceWEI = w3.toWei(veh_priceETH, "ether")
+        
     elif veh_pmtCOIN =='ETH':
         veh_priceETH = veh_price
         veh_priceWEI = w3.toWei(veh_priceETH, "ether")
-        veh_priceUSDfloat = float(veh_priceETH) / conversion_rate
+        
+        #change veh_priceETH to a float to be divided by the float(conversion_rate)
+        veh_priceUSDfloat = float(veh_priceETH) / float(conversion_rate)
+        
+        #calculation result veh_priceUSDfloat, changed back to a string for type coninuity
         veh_priceUSD = str(veh_priceUSDfloat)
     
     return veh_priceUSD, veh_priceETH, veh_priceWEI
