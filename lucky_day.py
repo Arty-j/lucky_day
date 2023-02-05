@@ -153,7 +153,13 @@ if type == "Vehicle":
         key="veh_price",
     )
 
-    veh_priceUSD, veh_priceETH, veh_priceWEI = get_price(w3, veh_pmtCOIN, veh_price)
+    if veh_price != '' : 
+        veh_priceUSD, veh_priceETH, veh_priceWEI = get_price(w3, veh_pmtCOIN, veh_price)
+    else:
+        veh_priceUSD = '' 
+        veh_priceETH = '' 
+        veh_priceWEI = ''   
+    
     
 
 
@@ -204,7 +210,7 @@ account = generate_account(w3)
                  
 walletETH = get_balance(w3, account.address)
                  
-if veh_priceETH <= walletETH:
+if veh_priceETH != '' and veh_priceETH <= walletETH:
     new_balance = float(walletETH) - float(veh_priceETH)
     
 # Write the vehicle make and model to the sidebar
