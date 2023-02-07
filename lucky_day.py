@@ -423,7 +423,7 @@ if submit2 == True or submit3 == True:
         if type == "Vehicle":
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {veh_make} {veh_model} for, {priceETH} ETH.")
         else:
-            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {moto_make} {make_model} for, {priceETH} ETH.")
+            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {moto_make} {moto_model} for, {priceETH} ETH.")
             
 
 
