@@ -19,14 +19,14 @@ from web3 import Web3
 w3 = Web3(Web3.HTTPProvider('HTTP://127.0.0.1:7545'))
 
 def form2_callback():
-    if 'submit2' not in st.session_state:
-        st.session_state['submit2'] = True
-        print("form2_callback executed")
+    print("form2_callback executed")
+    st.session_state['submit2'] = True
+        
 
 def form3_callback():
-    if 'submit3' not in st.session_state:
-        st.session_state['submit3'] = True
-        print("form3_callback executed")
+    print("form3_callback executed")
+    st.session_state['submit3'] = True
+       
 
 def reset_form2_session_state():    
     if 'submit2' not in st.session_state:
