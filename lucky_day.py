@@ -48,7 +48,7 @@ st.sidebar.write(f"Balance: {walletETH}")
 # Step 3:
 # Streamlit Main Page  - Form for data capture to set up additional form expanders
 
-#sets up data collection form with 3 columns
+#sets up first data collection form
 st.write("")
 form = st.form(key="form_settings", clear_on_submit=False)
 col1, col2, col3 = form.columns([2, 2, 1])
@@ -212,9 +212,8 @@ if submit == True and type == "Vehicle":
 # ----------------------------
 # ----------------------------
 
+# Sets up form 3
 if submit == True and type == "Motorcycle":
-    
-    # Sets up form 3
     form3 = st.form(key="form3_settings", clear_on_submit=False)
 
     # Expander opens and collapses the form with 3 columns
@@ -357,7 +356,7 @@ if submit == True and type == "Motorcycle":
 
 # Remove the if statement and replace with "else" once smart contract connected               
 # else:                
-if submit2 or submit3 == True:             
+if submit2 == True or submit3 == True:             
     if priceETH != '' and float(priceETH) <= float(walletETH):
         new_balance = float(walletETH) - float(priceETH)
         st.write("**The blockchain sale transaction will be in wei**")
