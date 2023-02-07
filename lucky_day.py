@@ -18,6 +18,25 @@ from web3 import Web3
 
 w3 = Web3(Web3.HTTPProvider('HTTP://127.0.0.1:7545'))
 
+def form2_callback():
+    if 'submit2' not in st.session_state:
+        st.session_state['submit2'] = True
+        print("form2_callback executed")
+
+def form3_callback():
+    if 'submit3' not in st.session_state:
+        st.session_state['submit3'] = True
+        print("form3_callback executed")
+
+def reset_form2_session_state():    
+    if 'submit2' not in st.session_state:
+        st.session_state['submit2'] = False   
+    
+def reset_form3_session_state():    
+    if 'submit3' not in st.session_state:
+        st.session_state['submit3'] = False      
+
+
 
 ################################################################################
 # Step 1:
@@ -82,11 +101,13 @@ submit = form.form_submit_button(label="Transaction Type")
 # Step 4:
 # Sets up data customization Form 2, with expander for Vehicle or Motorcycle selection options
 
-
+reset_form2_session_state()
+reset_form3_session_state()
     
 # Sets up form 2
 if submit == True and type == "Vehicle":
     form2 = st.form(key="form2_settings", clear_on_submit=False)
+    reset_form2_session_state()
     
     # Expander opens and collapses the form with 3 columns
     expander = form2.expander("Customize Your Transaction")
@@ -207,7 +228,9 @@ if submit == True and type == "Vehicle":
     )
     
 # Final Form2 submittal of data to of Transaction Details
-    submit2 = form2.form_submit_button(label="Review Transaction Details")
+    #submit2 = form2.form_submit_button(label="Review Transaction Details")
+    submit_button_form2 = form2.form_submit_button(label='Review Transaction Details', on_click=form2_callback)
+    print(f"submit2 = {st.session_state.submit2}")
 
 # ----------------------------
 # ----------------------------
@@ -215,6 +238,7 @@ if submit == True and type == "Vehicle":
 # Sets up form 3
 if submit == True and type == "Motorcycle":
     form3 = st.form(key="form3_settings", clear_on_submit=False)
+    reset_form3_session_state()
 
     # Expander opens and collapses the form with 3 columns
     expander = form3.expander("Customize Your Transaction")
@@ -341,7 +365,9 @@ if submit == True and type == "Motorcycle":
     
 
     # Final Form3 submittal of data to of Transaction Details
-    submit3 = form3.form_submit_button(label="Review Transaction Details")
+    #submit3 = form3.form_submit_button(label="Review Transaction Details")
+    submit_button_form3 = form3.form_submit_button(label='Review Transaction Details', on_click=form3_callback)
+    print(f"submit3 = {st.session_state.submit3}")
 
 ################################################################################
 # Step 4: Connect Smart Contract or Record simple transaction to Ganache Blockchain
@@ -355,8 +381,14 @@ if submit == True and type == "Motorcycle":
                  
 
 # Remove the if statement and replace with "else" once smart contract connected               
-# else:                
-if submit2 == True or submit3 == True:             
+# else:   
+
+submit2 = st.session_state.submit2
+submit3 = st.session_state.submit3
+
+print(f"submit2={submit2} submit3={submit3}")  
+
+if submit2 == True or submit3 == True:         
     if priceETH != '' and float(priceETH) <= float(walletETH):
         new_balance = float(walletETH) - float(priceETH)
         st.write("**The blockchain sale transaction will be in wei**")
