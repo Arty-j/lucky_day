@@ -103,6 +103,9 @@ submit = form.form_submit_button(label="Transaction Type")
 
 reset_form2_session_state()
 reset_form3_session_state()
+priceUSD = '' 
+priceETH = '' 
+priceWEI = ''   
     
 # Sets up form 2
 if submit == True and type == "Vehicle":
