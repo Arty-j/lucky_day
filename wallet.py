@@ -4,7 +4,7 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 from bip44 import Wallet
-from web3 import Account
+from eth_account import Account
 from web3 import middleware
 from web3.gas_strategies.time_based import medium_gas_price_strategy
 from web3 import Web3
@@ -13,7 +13,7 @@ w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:7545'))
 
 # Wallet functionality
 
-def generate_account(w3):
+def generate_account():
     """Create a digital wallet and Ethereum account from a mnemonic seed phrase."""
     # Fetch mnemonic from environment variable.
     mnemonic = os.getenv("MNEMONIC")
