@@ -379,9 +379,7 @@ if submit == True and type == "Motorcycle":
 #     with st.spinner("Creating your smart contract for final review...(may take a minute)"):
         
 #         smart_contract = compile_veh_contract(submit2, buyer_address)
-
-
-                 
+                
 
 # Remove the if statement and replace with "else" once smart contract connected               
 # else:   
