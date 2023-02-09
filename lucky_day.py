@@ -399,31 +399,32 @@ if submit2 == True or submit3 == True:
         st.sidebar.write(" ")
         st.sidebar.write(" ")
         if type == "Vehicle":
-            st.sidebar.write(f":blue[If you buy this {veh_make} {veh_model} for, {priceETH} ETH]")
+            st.sidebar.write(f":blue[If you buy this {st.session_state.veh_make} {st.session_state.veh_model} for, {priceETH} ETH]")
             st.sidebar.write(f":blue[your new balance: {new_balance}]")
         else:
-            st.sidebar.write(f":blue[If you buy this {moto_make} {moto_model} for, {priceETH} ETH]")
+            st.sidebar.write(f":blue[If you buy this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH]")
             st.sidebar.write(f":blue[your new balance: {new_balance}]")
         
         st.write(" ")
         st.markdown("### If this sale record looks correct, press the button below")
         st.markdown("### to complete the transaction and record it to the Blockchain")    
         st.write(" ")
-        st.markdown(f":red[*{buyer_name} @ {buyer_address}*]")
-        st.markdown(f":red[*paying {price}{pmtCOIN}*]")
+        st.markdown(f":red[*{st.session_state.buyer_name} @ {st.session_state.buyer_address}*]")
+        st.markdown(f":red[*paying {st.session_state.price}{pmtCOIN}*]")
         st.markdown(f":red[*to*]")
-        st.markdown(f":red[*{seller_name} @ {seller_address}*]")
+        st.markdown(f":red[*{st.session_state.seller_name} @ {st.session_state.seller_address}*]")
         if type =="Vehicle":
-            st.write(f":red[*for the {veh_year} {veh_make}, {veh_model}*]")
+            st.write(f":red[*for the {st.session_state.veh_year} {st.session_state.veh_make}, {st.session_state.veh_model}*]")
         else:
-            st.write(f":red[*for the {moto_year}, {moto_make}, {moto_model}*]")
+            st.write(f":red[*for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model}*]")
         
                        
     else:
         if type == "Vehicle":
-            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {veh_make} {veh_model} for, {priceETH} ETH.")
+            print(f"veh_make={st.session_state.veh_make}")
+            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.veh_make} {st.session_state.veh_model} for, {priceETH} ETH.")
         else:
-            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {moto_make} {moto_model} for, {priceETH} ETH.")
+            st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH.")
             
 
 
