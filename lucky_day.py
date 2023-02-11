@@ -35,6 +35,7 @@ def reset_form2_session_state():
 def reset_form3_session_state():    
     if 'submit3' not in st.session_state:
         st.session_state['submit3'] = False      
+           
 
 
 
@@ -56,6 +57,8 @@ st.markdown("**Conduct your transactions via a transparent, trustworthy decentra
 account = generate_account()
 walletETH = get_balance(w3, account.address)
 buyer_address = account.address
+
+seller_address =''
 
 st.sidebar.markdown("**It's Your Lucky Day to Buy**")
 st.sidebar.write("Your (buyer) Account")
@@ -132,7 +135,8 @@ if submit == True and type == "Vehicle":
 
     veh_year = col1style.selectbox(
         "Vehicle Year",
-        options=getnums(1980,2023,1)
+        options=getnums(1980,2023,1),
+        key="veh_year"
     )
 
     veh_vin = col1style.text_input(
@@ -207,22 +211,22 @@ if submit == True and type == "Vehicle":
         "Sale Transaction Coin",
         options=pmtCOIN_options,
         help="This is the coin of choice for the sale transaction",
-        key="veh_pmtCOIN",
+        key="veh_pmtCOIN"
     )
     
     price = col2style.text_input(
         label="Sale Transaction Price",
         help="This is agreed sale price in the coin of choice listed above",
-        key="veh_price",
+        key="veh_price"
     )
-
-    if price != '' : 
-        priceUSD, priceETH, priceWEI = price(w3, pmtCOIN, price)
-    else:
-        priceUSD = '' 
-        priceETH = '' 
-        priceWEI = ''   
-    
+#
+#    if price != '' : 
+#        priceUSD, priceETH, priceWEI = price(w3, pmtCOIN, price)
+#    else:
+#        priceUSD = '' 
+#        priceETH = '' 
+#        priceWEI = ''   
+#    
      
     gas = col3style.text_input(
         "Gas",
@@ -263,7 +267,8 @@ if submit == True and type == "Motorcycle":
 
     moto_year = col1style.selectbox(
         "Motorcycle Year",
-        options=getnums(1980,2023,1)
+        options=getnums(1980,2023,1),
+        key="moto_year"
     )
 
     moto_vin = col1style.text_input(
@@ -325,21 +330,23 @@ if submit == True and type == "Motorcycle":
         "Sale Transaction Coin",
         options=pmtCOIN_options,
         help="This is the coin of choice for the sale transaction",
-        key="moto_pmtCOIN",
+        key="moto_pmtCOIN"
     )
     
     price = col2style.text_input(
         label="Sale Transaction Price",
         help="This is agreed sale price in the coin of choice listed above",
-        key="moto_price",
+        key="moto_price"
     )
 
-    if price != '' : 
-        priceUSD, priceETH, priceWEI = get_price(w3, pmtCOIN, price)
-    else:
-        priceUSD = '' 
-        priceETH = '' 
-        priceWEI = ''   
+#
+#    if price != '' : 
+#        priceUSD, priceETH, priceWEI = get_price(w3, pmtCOIN, price)
+#    else:
+#        priceUSD = '' 
+#        priceETH = '' 
+#        priceWEI = ''   
+#
     
     
 # --------- 
@@ -384,12 +391,26 @@ if submit == True and type == "Motorcycle":
 # Remove the if statement and replace with "else" once smart contract connected               
 # else:   
 
-submit2 = st.session_state.submit2
-submit3 = st.session_state.submit3
+print(f"st.session_state.submit2={st.session_state.submit2} st.session_state.submit3={st.session_state.submit3}")
+if st.session_state.submit2 == True or st.session_state.submit3 == True:       
 
-print(f"submit2={submit2} submit3={submit3}")  
+    #calculate price here
+    if type == "Vehicle":
+        price = st.session_state.veh_price 
+        pmtCOIN = st.session_state.veh_pmtCOIN
+    else:
+        price = st.session_state.moto_price
+        pmtCOIN = st.session_state.moto_pmtCOIN
 
-if submit2 == True or submit3 == True:         
+    if price != '' : 
+        priceUSD, priceETH, priceWEI = get_price(w3, pmtCOIN, price)
+    else:
+        priceUSD = '' 
+        priceETH = '' 
+        priceWEI = ''   
+   
+
+    print(f"priceETH={priceETH} walletETH={walletETH}")
     if priceETH != '' and float(priceETH) <= float(walletETH):
         new_balance = float(walletETH) - float(priceETH)
         st.write("**The blockchain sale transaction will be in wei**")
@@ -409,14 +430,35 @@ if submit2 == True or submit3 == True:
         st.markdown("### If this sale record looks correct, press the button below")
         st.markdown("### to complete the transaction and record it to the Blockchain")    
         st.write(" ")
-        st.markdown(f":red[*{st.session_state.buyer_name} @ {st.session_state.buyer_address}*]")
-        st.markdown(f":red[*paying {st.session_state.price}{pmtCOIN}*]")
-        st.markdown(f":red[*to*]")
-        st.markdown(f":red[*{st.session_state.seller_name} @ {st.session_state.seller_address}*]")
+        
+        buyer_name_address=f"<p style=\"color:Red;\" > BUYER INFO : {st.session_state.buyer_name} @ {buyer_address} </p>"
+        st.markdown( buyer_name_address, unsafe_allow_html=True)
+
+        price_pmtCOIN=f"<p style=\"color:Red;\" > {price} @ {pmtCOIN} </p>"
+        st.markdown( price_pmtCOIN, unsafe_allow_html=True)
+
+        to_str=f"<p style=\"color:Red;\" > <b>TO </b> </p>"
+        st.markdown( to_str, unsafe_allow_html=True)
+
+        seller_address=st.session_state.seller_address
+        print(f"seller_address={seller_address}")
+        seller_name_address=  f"<p style=\"color:Red;\" > SELLER INFO : {st.session_state.seller_name} @ {st.session_state.seller_address} </p>"
+        st.markdown( seller_name_address, unsafe_allow_html=True)
+
+        #st.markdown(f":red[*paying {price}{pmtCOIN}*]")
+        #st.markdown(f":red[*to*]")
+        #st.markdown(f":red[*{st.session_state.seller_name} @ {st.session_state.seller_address}*]")
+
         if type =="Vehicle":
-            st.write(f":red[*for the {st.session_state.veh_year} {st.session_state.veh_make}, {st.session_state.veh_model}*]")
+
+            veh_info=f"<p style=\"color:Red;\" > for the {st.session_state.veh_year} {st.session_state.veh_make}, {st.session_state.veh_model} </p>"
+            #st.write(f":red[*for the {st.session_state.veh_year} {st.session_state.veh_make}, {st.session_state.veh_model}*]")
+            st.markdown( veh_info, unsafe_allow_html=True)
+
         else:
-            st.write(f":red[*for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model}*]")
+            moto_info="<p style=\"color:Red;\" > for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model} </p>"
+            #st.write(f":red[*for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model}*]")
+            st.markdown( moto_info, unsafe_allow_html=True)
         
                        
     else:
@@ -425,15 +467,14 @@ if submit2 == True or submit3 == True:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.veh_make} {st.session_state.veh_model} for, {priceETH} ETH.")
         else:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH.")
-            
-
-
 ###############################################################################
 # Step 5:
 # Streamlit “Complete Transaction” button code so that when someone clicks the
 # button, the transaction is added to the blockchain.
 
+
 if st.button("Complete Transaction"):
+    print(f"account={account} seller_address={seller_address}  priceETH={priceETH}")
     transaction_complete = send_transaction(w3, account, seller_address, priceETH)
     st.write("Your transaction on the Ganache Blockchain tester is complete!")
     st.write("Here is the hash code confirming your transaction")
@@ -445,7 +486,10 @@ if st.button("Complete Transaction"):
     else:
         st.markdown("## Congratulations on buying your motorcycle!")
         st.balloons()
-                 
+
+st.session_state.submit2 = False
+st.session_state.submit3 = False
+
 ################################################################################
 # Step 4:
 # Streamlit “Add Block” button code so that when someone clicks the
