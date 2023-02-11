@@ -472,7 +472,7 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
 # Streamlit “Complete Transaction” button code so that when someone clicks the
 # button, the transaction is added to the blockchain.
 
-
+# This needs work
 if st.button("Complete Transaction"):
     print(f"account={account} seller_address={seller_address}  priceETH={priceETH}")
     transaction_complete = send_transaction(w3, account, seller_address, priceETH)
