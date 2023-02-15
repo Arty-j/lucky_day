@@ -176,7 +176,7 @@ if submit == True and type == "Vehicle":
     col2style.markdown("---")
 
     buyer_name = col2style.text_input(
-        "Buyer Name",
+        "Your Name (Buyer)",
         max_chars=40,
         key="buyer_name",
     )
@@ -313,7 +313,7 @@ if submit == True and type == "Motorcycle":
     col2style.markdown("---")
 
     buyer_name = col2style.text_input(
-        "Buyer Name",
+        "Your Name (Buyer)",
         max_chars=40,
         key="moto_buyer_name",
     )
@@ -434,7 +434,7 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
         buyer_name_address=f"<p style=\"color:Red;\" > BUYER INFO : {st.session_state.buyer_name} @ {buyer_address} </p>"
         st.markdown( buyer_name_address, unsafe_allow_html=True)
 
-        price_pmtCOIN=f"<p style=\"color:Red;\" > {price} @ {pmtCOIN} </p>"
+        price_pmtCOIN=f"<p style=\"color:Red;\" > {price} @ {pmtCOIN} = {priceWEI} wei </p>"
         st.markdown( price_pmtCOIN, unsafe_allow_html=True)
 
         to_str=f"<p style=\"color:Red;\" > <b>TO </b> </p>"
@@ -467,28 +467,29 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.veh_make} {st.session_state.veh_model} for, {priceETH} ETH.")
         else:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH.")
+
 ###############################################################################
 # Step 5:
 # Streamlit “Complete Transaction” button code so that when someone clicks the
 # button, the transaction is added to the blockchain.
 
 # This needs work
-if st.button("Complete Transaction"):
-    print(f"account={account} seller_address={seller_address}  priceETH={priceETH}")
-    transaction_complete = send_transaction(w3, account, seller_address, priceETH)
-    st.write("Your transaction on the Ganache Blockchain tester is complete!")
-    st.write("Here is the hash code confirming your transaction")
-    st.write(f"{transaction_complete}")
-    st.write("/n")
-    if type == "Vehicle":
-        st.markdown("## Congratulations on buying your vehicle!")
-        st.balloons()
-    else:
-        st.markdown("## Congratulations on buying your motorcycle!")
-        st.balloons()
+    if st.button("C Desk    omplete Transaction"):
+        print(f"account={account} seller_address={st.session_state.seller_address}  priceETH={priceETH}")
+        transaction_complete = send_transaction(w3, account, st.session_state.seller_address, priceETH)
+        st.write("Your transaction on the Ganache Blockchain tester is complete!")
+        st.write("Here is the hash code confirming your transaction")
+        st.write(f"{transaction_complete}")
+        st.write("/n")
+        if type == "Vehicle":
+            st.markdown("## Congratulations on buying your vehicle!")
+            st.balloons()
+        else:
+            st.markdown("## Congratulations on buying your motorcycle!")
+            st.balloons()
 
-st.session_state.submit2 = False
-st.session_state.submit3 = False
+    st.session_state.submit2 = False
+    st.session_state.submit3 = False
 
 ################################################################################
 # Step 4:
