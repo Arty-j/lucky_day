@@ -1,4 +1,6 @@
 import streamlit as st
+import requests
+import json
 from bip44 import Wallet
 from eth_account import Account
 from web3 import middleware
@@ -18,10 +20,14 @@ def getnums(s,e,i):
 
 def get_price(w3, pmtCOIN, price):
     """function to calculate price of vehicle sale in USD, ethereum & wei"""
-######use api to get current rate of 1usd to eth, set = to conversion_rate ** currently using static rate for code testing#######
+# get current ethe to usd rate from coingecko api
+    url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
+    response = requests.get(url)
+    data = response.json()
 
     #conversion rate is $1USD to ETH
-    conversion_rate = 0.0006030253783230467
+    conversion_rate = 1 / (data['ethereum']['usd'])
+    print(f"usd to eth conversion_rate: {conversion_rate}")
 
     if pmtCOIN == 'USD':
         priceUSD = price
