@@ -29,6 +29,9 @@ def get_price(w3, pmtCOIN, price):
     conversion_rate = 1 / (data['ethereum']['usd'])
     print(f"usd to eth conversion_rate: {conversion_rate}")
 
+    # #conversion rate is $1USD to ETH
+    # conversion_rate = 0.0006030253783230467
+
     if pmtCOIN == 'USD':
         priceUSD = price
         
