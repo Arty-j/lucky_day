@@ -18,25 +18,59 @@ from web3 import Web3
 
 w3 = Web3(Web3.HTTPProvider('HTTP://127.0.0.1:7545'))
 
+
 def form2_callback():
     print("form2_callback executed")
     st.session_state['submit2'] = True
-        
-
+  
 def form3_callback():
     print("form3_callback executed")
     st.session_state['submit3'] = True
-       
+
 
 def reset_form2_session_state():    
     if 'submit2' not in st.session_state:
         st.session_state['submit2'] = False   
+
+    if 'priceETH' not in st.session_state:
+        st.session_state.priceETH=''     
+
+    if 'seller_address' not in st.session_state:
+        st.session_state.seller_address=''    
+       
+    if 'veh_price' not in st.session_state:
+        st.session_state.veh_price=''     
+
+    if 'veh_pmtCOIN' not in st.session_state:
+        st.session_state.veh_pmtCOIN='' 
+
+    if 'veh_make' not in st.session_state:
+        st.session_state.veh_make='' 
+
+    if 'veh_model' not in st.session_state:
+        st.session_state.veh_model=''    
     
 def reset_form3_session_state():    
     if 'submit3' not in st.session_state:
-        st.session_state['submit3'] = False      
-           
+        st.session_state['submit3'] = False
 
+    if 'priceETH' not in st.session_state:
+        st.session_state.priceETH='' 
+
+    if 'seller_address' not in st.session_state:
+        st.session_state.seller_address='' 
+ 
+    if 'moto_price' not in st.session_state:
+        st.session_state.moto_price=''     
+
+    if 'moto_price' not in st.session_state:
+        st.session_state.moto_price=''  
+
+    if 'moto_make' not in st.session_state:
+        st.session_state.moto_make=''   
+
+    if 'veh_model' not in st.session_state:
+        st.session_state.veh_model=''  
 
 
 ################################################################################
@@ -57,8 +91,6 @@ st.markdown("**Conduct your transactions via a transparent, trustworthy decentra
 account = generate_account()
 walletETH = get_balance(w3, account.address)
 buyer_address = account.address
-
-seller_address =''
 
 st.sidebar.markdown("**It's Your Lucky Day to Buy**")
 st.sidebar.write("Your (buyer) Account")
@@ -290,7 +322,7 @@ if submit == True and type == "Motorcycle":
     seller_address = col1style.text_input(
         "Seller Wallet Address",
         max_chars=42,
-        key="moto_seller_address",
+        key="seller_address"
     )
     
     
@@ -391,8 +423,10 @@ if submit == True and type == "Motorcycle":
 # Remove the if statement and replace with "else" once smart contract connected               
 # else:   
 
-print(f"st.session_state.submit2={st.session_state.submit2} st.session_state.submit3={st.session_state.submit3}")
+
 if st.session_state.submit2 == True or st.session_state.submit3 == True:       
+    
+    print(f"st.session_state.submit2={st.session_state.submit2} st.session_state.submit3={st.session_state.submit3}")
 
     #calculate price here
     if type == "Vehicle":
@@ -416,6 +450,8 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
         st.write("**The blockchain sale transaction will be in wei**")
         st.write("current market price of Ethereum")
         st.write(f"${priceUSD} USD = {priceETH} ETH = {priceWEI} wei")
+
+        st.session_state.priceETH=priceETH
         
         st.sidebar.write(" ")
         st.sidebar.write(" ")
@@ -426,6 +462,8 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
             st.sidebar.write(f":blue[If you buy this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH]")
             st.sidebar.write(f":blue[your new balance: {new_balance}]")
         
+        #st.session_state.priceETH=priceETH
+
         st.write(" ")
         st.markdown("### If this sale record looks correct, press the button below")
         st.markdown("### to complete the transaction and record it to the Blockchain")    
@@ -440,8 +478,6 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
         to_str=f"<p style=\"color:Red;\" > <b>TO </b> </p>"
         st.markdown( to_str, unsafe_allow_html=True)
 
-        seller_address=st.session_state.seller_address
-        print(f"seller_address={seller_address}")
         seller_name_address=  f"<p style=\"color:Red;\" > SELLER INFO : {st.session_state.seller_name} @ {st.session_state.seller_address} </p>"
         st.markdown( seller_name_address, unsafe_allow_html=True)
 
@@ -458,9 +494,7 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
         else:
             moto_info="<p style=\"color:Red;\" > for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model} </p>"
             #st.write(f":red[*for the {st.session_state.moto_year}, {st.session_state.moto_make}, {st.session_state.moto_model}*]")
-            st.markdown( moto_info, unsafe_allow_html=True)
-        
-                       
+            st.markdown( moto_info, unsafe_allow_html=True)                     
     else:
         if type == "Vehicle":
             print(f"veh_make={st.session_state.veh_make}")
@@ -473,23 +507,25 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
 # Streamlit “Complete Transaction” button code so that when someone clicks the
 # button, the transaction is added to the blockchain.
 
-# This needs work
-    if st.button("C Desk    omplete Transaction"):
-        print(f"account={account} seller_address={st.session_state.seller_address}  priceETH={priceETH}")
-        transaction_complete = send_transaction(w3, account, st.session_state.seller_address, priceETH)
-        st.write("Your transaction on the Ganache Blockchain tester is complete!")
-        st.write("Here is the hash code confirming your transaction")
-        st.write(f"{transaction_complete}")
-        st.write("/n")
-        if type == "Vehicle":
-            st.markdown("## Congratulations on buying your vehicle!")
-            st.balloons()
-        else:
-            st.markdown("## Congratulations on buying your motorcycle!")
-            st.balloons()
 
-    st.session_state.submit2 = False
-    st.session_state.submit3 = False
+st.session_state['submit2'] = False
+st.session_state['submit3'] = False
+
+if st.button("Complete Transaction"):
+    print(f"st.session_state.seller_address={st.session_state.seller_address}, st.session_state.priceETH={st.session_state.priceETH}")
+    transaction_complete = send_transaction(w3, account, st.session_state.seller_address, st.session_state.priceETH)
+    st.write("Your transaction on the Ganache Blockchain tester is complete!")
+    st.write("Here is the hash code confirming your transaction")
+    st.write(f"{transaction_complete}")
+    st.write("/n")
+    if type == "Vehicle":
+        st.markdown("## Congratulations on buying your vehicle!")
+        st.balloons()
+    else:
+        st.markdown("## Congratulations on buying your motorcycle!")
+        st.balloons()
+
+
 
 ################################################################################
 # Step 4:
