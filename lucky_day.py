@@ -208,7 +208,7 @@ if submit == True and type == "Vehicle":
     col2style.markdown("---")
 
     buyer_name = col2style.text_input(
-        "Buyer Name",
+        "Your Name (Buyer)",
         max_chars=40,
         key="buyer_name",
     )
@@ -345,7 +345,7 @@ if submit == True and type == "Motorcycle":
     col2style.markdown("---")
 
     buyer_name = col2style.text_input(
-        "Buyer Name",
+        "Your Name (Buyer)",
         max_chars=40,
         key="moto_buyer_name",
     )
@@ -472,7 +472,7 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
         buyer_name_address=f"<p style=\"color:Red;\" > BUYER INFO : {st.session_state.buyer_name} @ {buyer_address} </p>"
         st.markdown( buyer_name_address, unsafe_allow_html=True)
 
-        price_pmtCOIN=f"<p style=\"color:Red;\" > {price} @ {pmtCOIN} </p>"
+        price_pmtCOIN=f"<p style=\"color:Red;\" > {price} @ {pmtCOIN} = {priceWEI} wei </p>"
         st.markdown( price_pmtCOIN, unsafe_allow_html=True)
 
         to_str=f"<p style=\"color:Red;\" > <b>TO </b> </p>"
@@ -501,10 +501,12 @@ if st.session_state.submit2 == True or st.session_state.submit3 == True:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.veh_make} {st.session_state.veh_model} for, {priceETH} ETH.")
         else:
             st.write(f"With a balance of {walletETH} ether in your wallet, you can't afford this {st.session_state.moto_make} {st.session_state.moto_model} for, {priceETH} ETH.")
+
 ###############################################################################
 # Step 5:
 # Streamlit “Complete Transaction” button code so that when someone clicks the
 # button, the transaction is added to the blockchain.
+
 
 st.session_state['submit2'] = False
 st.session_state['submit3'] = False
